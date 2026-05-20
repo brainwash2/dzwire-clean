@@ -23,7 +23,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: {
         "fr-DZ": "/fr",
         "ar-DZ": "/ar",
-        "en-GB": "/en",
         "x-default": "/fr",
       },
     },
@@ -37,25 +36,16 @@ export default async function LocaleLayout({ children, params }: Props) {
   const jsonLd = websiteJsonLd();
 
   return (
-    <div
-      dir={dir}
-      lang={locale}
-      style={{
-        fontFamily: dir === "rtl" ? "var(--font-arabic)" : "var(--font-inter)",
-        minHeight: "100vh",
-        background: "var(--bg-base)",
-      }}
-    >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <Header locale={locale} />
-      <main className="pb-20 md:pb-0">{children}</main>
-      <Footer locale={locale} />
-      <BottomNav locale={locale} />
-      <ConsentBanner locale={locale} />
-    </div>
+    <html lang={locale} dir={dir} suppressHydrationWarning data-scroll-behavior="smooth">
+      <body suppressHydrationWarning style={{ fontFamily: dir === "rtl" ? "var(--font-arabic)" : "var(--font-inter)", minHeight: "100vh", background: "var(--bg-base)" }}>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <Header locale={locale} />
+        <main className="pb-20 md:pb-0">{children}</main>
+        <Footer locale={locale} />
+        <BottomNav locale={locale} />
+        <ConsentBanner locale={locale} />
+      </body>
+    </html>
   );
 }
 

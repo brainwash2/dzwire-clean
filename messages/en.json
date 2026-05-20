@@ -1,0 +1,40 @@
+{
+  "site": {
+    "name": "DzWire",
+    "tagline": "Algerian news, reimagined"
+  },
+  "nav": {
+    "home": "Home",
+    "trending": "Trending",
+    "categories": "Categories",
+    "search": "Search",
+    "premium": "Premium"
+  },
+  "article": {
+    "readMore": "Read more",
+    "premiumBanner": "This article is for subscribers only",
+    "publishedOn": "Published on",
+    "by": "By",
+    "relatedArticles": "Related articles"
+  },
+  "feed": {
+    "noArticles": "No articles yet.",
+    "loading": "Loading...",
+    "error": "An error occurred."
+  },
+  "weather": {
+    "title": "Weather",
+    "wind": "Wind",
+    "humidity": "Humidity"
+  },
+  "consent": {
+    "message": "This site uses cookies to improve your experience.",
+    "accept": "Accept",
+    "refuse": "Refuse"
+  },
+  "language": {
+    "fr": "Français",
+    "ar": "العربية",
+    "en": "English"
+  }
+}

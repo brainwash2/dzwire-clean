@@ -192,10 +192,10 @@ export default function Header({ locale }: Props) {
               style={{ border: "1px solid var(--border-default)" }}
             >
               {LOCALES.map((loc) => (
-                <button
-                  key={loc}
-                  onClick={() => switchTo(loc)}
-                  className="text-xs font-bold px-2.5 py-1.5 transition-all duration-200"
+               <button
+               key={loc}
+               onClick={() => switchTo(loc)}
+               className="cursor-pointer text-xs font-bold px-2.5 py-1.5 transition-all duration-200"
                   style={{
                     background: loc === locale ? "var(--accent-green-dim)" : "transparent",
                     color: loc === locale ? "var(--accent-green)" : "var(--text-muted)",

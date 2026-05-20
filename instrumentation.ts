@@ -1,6 +1,4 @@
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
-    const { startScheduler } = await import("./lib/scheduler");
-    await startScheduler();
-  }
+  // Background intervals are deprecated in favor of serverless API cron executions.
+  // This avoids active socket leaks and execution timeouts on serverless nodes.
 }

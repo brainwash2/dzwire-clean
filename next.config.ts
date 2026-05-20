@@ -1,14 +1,10 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["*.replit.dev", "*.kirk.replit.dev", "*.replit.app"],
-  images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "picsum.photos" },
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "**.replit.dev" },
-    ],
-  },
-};
+  reactStrictMode: true,
+  allowedDevOrigins: [
+    '3000-firebase-dzwire-1779209350233.cluster-cbeiita7rbe7iuwhvjs5zww2i4.cloudworkstations.dev',
+  ],
+}
 
-export default nextConfig;
+export default nextConfig

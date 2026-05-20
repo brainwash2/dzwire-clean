@@ -33,9 +33,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refetch = useCallback(async () => {
     try {
       const res = await fetch("/api/auth/user", { credentials: "include" });
+      if (!res.ok) throw new Error("Not authenticated");
       const data = await res.json();
       setUser(data.user ?? null);
     } catch {
+      // No user session yet — that's fine, user stays null
       setUser(null);
     }
   }, []);

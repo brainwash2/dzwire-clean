@@ -15,11 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html suppressHydrationWarning data-scroll-behavior="smooth">
-      <body suppressHydrationWarning>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
-  );
+  return children;
 }

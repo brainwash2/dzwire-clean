@@ -1,0 +1,40 @@
+{
+  "site": {
+    "name": "دزواير",
+    "tagline": "الأخبار الجزائرية، بطريقة جديدة"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "trending": "الشائع",
+    "categories": "الأقسام",
+    "search": "بحث",
+    "premium": "بريميوم"
+  },
+  "article": {
+    "readMore": "اقرأ المزيد",
+    "premiumBanner": "هذا المقال حصري للمشتركين",
+    "publishedOn": "نُشر في",
+    "by": "بقلم",
+    "relatedArticles": "مقالات مشابهة"
+  },
+  "feed": {
+    "noArticles": "لا توجد مقالات حالياً.",
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ ما."
+  },
+  "weather": {
+    "title": "الطقس",
+    "wind": "الرياح",
+    "humidity": "الرطوبة"
+  },
+  "consent": {
+    "message": "يستخدم هذا الموقع ملفات تعريف الارتباط لتحسين تجربتك.",
+    "accept": "موافق",
+    "refuse": "رفض"
+  },
+  "language": {
+    "fr": "Français",
+    "ar": "العربية",
+    "en": "English"
+  }
+}

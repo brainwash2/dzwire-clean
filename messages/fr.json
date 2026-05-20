@@ -1,0 +1,40 @@
+{
+  "site": {
+    "name": "DzWire",
+    "tagline": "L'info algérienne, réinventée"
+  },
+  "nav": {
+    "home": "Accueil",
+    "trending": "Tendances",
+    "categories": "Catégories",
+    "search": "Rechercher",
+    "premium": "Premium"
+  },
+  "article": {
+    "readMore": "Lire la suite",
+    "premiumBanner": "Cet article est réservé aux abonnés",
+    "publishedOn": "Publié le",
+    "by": "Par",
+    "relatedArticles": "Articles similaires"
+  },
+  "feed": {
+    "noArticles": "Aucun article pour le moment.",
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue."
+  },
+  "weather": {
+    "title": "Météo",
+    "wind": "Vent",
+    "humidity": "Humidité"
+  },
+  "consent": {
+    "message": "Ce site utilise des cookies pour améliorer votre expérience.",
+    "accept": "Accepter",
+    "refuse": "Refuser"
+  },
+  "language": {
+    "fr": "Français",
+    "ar": "العربية",
+    "en": "English"
+  }
+}
