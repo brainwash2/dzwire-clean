@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { Link } from "@/i18n/routing";
+import { Link } from "../i18n/routing";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/types";
 import { usePathname } from "next/navigation";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 
 interface Props {
   locale: Locale;
@@ -121,15 +121,15 @@ export function Header({ locale }: Props) {
             </Link>
           </div>
 
-          {/* Clerk Identity Controls */}
-          <SignedOut>
+          {/* Clerk v7 Identity Controls */}
+          <Show when="signed-out">
             <SignInButton mode="modal">
               <button className="bg-zinc-950 border border-white/10 hover:border-emerald-500 text-gray-300 hover:text-white px-3.5 py-1.5 rounded-md text-sm transition font-medium cursor-pointer">
                 {t(locale, "signIn")}
               </button>
             </SignInButton>
-          </SignedOut>
-          <SignedIn>
+          </Show>
+          <Show when="signed-in">
             <UserButton
               appearance={{
                 elements: {
@@ -137,7 +137,7 @@ export function Header({ locale }: Props) {
                 }
               }}
             />
-          </SignedIn>
+          </Show>
         </div>
       </div>
     </header>
