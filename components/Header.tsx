@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Link } from "../i18n/routing";
+import { Link } from "@/i18n/routing";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/types";
 import { usePathname } from "next/navigation";
