@@ -7,26 +7,95 @@ export function getDir(locale: Locale): "ltr" | "rtl" {
 }
 
 // -------------------------------------------------------------------
-// Embedded translations – used by the t() function
+// Embedded translations – populated for all layout components
 // -------------------------------------------------------------------
 const messages: Record<Locale, Record<string, string>> = {
   fr: {
+    // Nav & Header
     home: "Accueil",
     premium: "Premium",
     signIn: "Connexion",
     signOut: "Déconnexion",
+    search: "Rechercher",
+    
+    // Homepage Elements
+    seeAll: "Voir tout",
+    latestNews: "Dernières actualités",
+
+    // Footer Links
+    footerTagline: "L'information algérienne de référence, livrée en temps réel.",
+    taglineShort: "Politique, économie, technologie et sport.",
+    quickLinks: "Raccourcis",
+    socialLinks: "Suivez-nous",
+    newsletter: "Newsletter",
+    copyright: "Tous droits réservés.",
+    privacyPolicy: "Confidentialité",
+    newsletterPlaceholder: "votre.email@domaine.com",
+    subscribe: "S'abonner",
+
+    // Cookie Banner
+    cookieMessage: "Ce site utilise des cookies pour optimiser votre expérience de lecture.",
+    accept: "Accepter",
+    refuse: "Refuser",
+    reject: "Refuser"
   },
   ar: {
+    // Nav & Header
     home: "الرئيسية",
     premium: "بريميوم",
     signIn: "تسجيل الدخول",
     signOut: "تسجيل الخروج",
+    search: "البحث",
+
+    // Homepage Elements
+    seeAll: "عرض الكل",
+    latestNews: "آخر الأخبار",
+
+    // Footer Links
+    footerTagline: "الأخبار الجزائرية الموثوقة، في وقتها الفعلي.",
+    taglineShort: "سياسة، اقتصاد، تكنولوجيا ورياضة.",
+    quickLinks: "روابط سريعة",
+    socialLinks: "تابعنا",
+    newsletter: "النشرة البريدية",
+    copyright: "جميع الحقوق محفوظة.",
+    privacyPolicy: "سياسة الخصوصية",
+    newsletterPlaceholder: "بريدك الإلكتروني...",
+    subscribe: "اشتراك",
+
+    // Cookie Banner
+    cookieMessage: "يستخدم هذا الموقع ملفات تعريف الارتباط لتحسين تجربتك.",
+    accept: "موافق",
+    refuse: "رفض",
+    reject: "رفض"
   },
   en: {
+    // Nav & Header
     home: "Home",
     premium: "Premium",
     signIn: "Sign in",
     signOut: "Sign out",
+    search: "Search",
+
+    // Homepage Elements
+    seeAll: "See all",
+    latestNews: "Latest news",
+
+    // Footer Links
+    footerTagline: "The definitive Algerian news hub, delivered in real time.",
+    taglineShort: "Politics, economy, technology, and sports.",
+    quickLinks: "Quick Links",
+    socialLinks: "Social Links",
+    newsletter: "Newsletter",
+    copyright: "All rights reserved.",
+    privacyPolicy: "Privacy Policy",
+    newsletterPlaceholder: "your.email@domain.com",
+    subscribe: "Subscribe",
+
+    // Cookie Banner
+    cookieMessage: "This site uses cookies to optimize your reading experience.",
+    accept: "Accept",
+    refuse: "Reject",
+    reject: "Reject"
   },
 };
 
