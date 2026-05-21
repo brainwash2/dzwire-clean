@@ -11,7 +11,16 @@ const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
 export default clerkMiddleware(async (auth, request: NextRequest) => {
   const { pathname } = request.nextUrl;
 
-  // 1. Enforce authentication on admin routes
+  // 1. Defensively catch localized studio paths and redirect to unlocalized /studio
+  const cleanStudioPath = pathname.replace(/^\/(fr|ar|en)\/studio/, "/studio");
+  if (cleanStudioPath.startsWith("/studio")) {
+    if (pathname !== cleanStudioPath) {
+      return NextResponse.redirect(new URL(cleanStudioPath, request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // 2. Enforce authentication on admin routes
   if (isAdminRoute(request)) {
     const session = await auth();
     // Redirect unauthenticated requests to your localized home page
@@ -20,7 +29,7 @@ export default clerkMiddleware(async (auth, request: NextRequest) => {
     }
   }
 
-  // 2. Perform locale validation and routing redirects
+  // 3. Perform locale validation and routing redirects
   const hasLocale = LOCALES.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`));
   if (hasLocale) {
     return NextResponse.next();
