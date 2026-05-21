@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Link } from "@/i18n/routing";
+import Link from "next/link";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/types";
 import { usePathname } from "next/navigation";
@@ -26,7 +26,7 @@ export function Header({ locale }: Props) {
   return (
     <header className="sticky top-0 z-50 bg-black/80 backdrop-blur border-b border-white/10 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
+        <Link href={`/${locale}`} className="flex items-center space-x-2">
           <span className="text-xl font-bold tracking-wider text-white">
             🇩🇿 <span style={{ color: "var(--accent-green)" }}>Dz</span>Wire
           </span>
@@ -35,7 +35,7 @@ export function Header({ locale }: Props) {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
           <Link
-            href="/"
+            href={`/${locale}`}
             className={`hover:text-emerald-500 transition ${
               isActive("/") ? "text-emerald-500 font-semibold" : "text-gray-300"
             }`}
@@ -43,7 +43,7 @@ export function Header({ locale }: Props) {
             {t(locale, "home")}
           </Link>
           <Link
-            href="/politique"
+            href={`/${locale}/politique`}
             className={`hover:text-emerald-500 transition ${
               isActive("/politique") ? "text-emerald-500 font-semibold" : "text-gray-300"
             }`}
@@ -51,7 +51,7 @@ export function Header({ locale }: Props) {
             {t(locale, "politics")}
           </Link>
           <Link
-            href="/tech-innovation"
+            href={`/${locale}/tech-innovation`}
             className={`hover:text-emerald-500 transition ${
               isActive("/tech-innovation") ? "text-emerald-500 font-semibold" : "text-gray-300"
             }`}
@@ -59,7 +59,7 @@ export function Header({ locale }: Props) {
             {t(locale, "tech")}
           </Link>
           <Link
-            href="/sport"
+            href={`/${locale}/sport`}
             className={`hover:text-emerald-500 transition ${
               isActive("/sport") ? "text-emerald-500 font-semibold" : "text-gray-300"
             }`}
@@ -67,7 +67,7 @@ export function Header({ locale }: Props) {
             {t(locale, "sport")}
           </Link>
           <Link
-            href="/energie-economie"
+            href={`/${locale}/energie-economie`}
             className={`hover:text-emerald-500 transition ${
               isActive("/energie-economie") ? "text-emerald-500 font-semibold" : "text-gray-300"
             }`}
@@ -82,10 +82,10 @@ export function Header({ locale }: Props) {
               </svg>
             </button>
             <div className="absolute right-0 mt-1 w-48 bg-zinc-950 border border-white/10 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <Link href="/medias-sociaux" className="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-900 hover:text-emerald-500">
+              <Link href={`/${locale}/medias-sociaux`} className="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-900 hover:text-emerald-500">
                 {locale === "ar" ? "وسائل التواصل الاجتماعي" : "Social Media"}
               </Link>
-              <Link href="/culture-gaming" className="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-900 hover:text-emerald-500">
+              <Link href={`/${locale}/culture-gaming`} className="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-900 hover:text-emerald-500">
                 {locale === "ar" ? "ثقافة وألعاب" : "Culture & Gaming"}
               </Link>
             </div>
