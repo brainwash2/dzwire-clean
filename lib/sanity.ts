@@ -44,3 +44,18 @@ export async function fetchSanityEvents(): Promise<any[]> {
     return [];
   }
 }
+
+/**
+ * Fetch all published editorial articles from Sanity CMS
+ */
+export async function fetchSanityArticles(): Promise<any[]> {
+  if (!sanityClient) return [];
+  try {
+    return await sanityClient.fetch(
+      `*[_type == "article"] | order(publishedAt desc)`
+    );
+  } catch (error) {
+    console.error("[SANITY ERROR] fetchSanityArticles failed:", error);
+    return [];
+  }
+}
