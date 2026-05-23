@@ -24,21 +24,48 @@ export default {
       name: 'slug_fr',
       title: 'Slug (French) *',
       type: 'slug',
-      options: { source: 'title_fr', maxLength: 96 },
+      options: {
+        source: 'title_fr',
+        maxLength: 96,
+        slugify: (input: string) => input
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^\p{L}\p{N}-]/gu, '') // Preserves French accents
+          .replace(/-+/g, '-')
+      },
       validation: (Rule: any) => Rule.required(),
     },
     {
       name: 'slug_ar',
       title: 'Slug (Arabic) *',
       type: 'slug',
-      options: { source: 'title_ar', maxLength: 96 },
+      options: {
+        source: 'title_ar',
+        maxLength: 96,
+        slugify: (input: string) => input
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^\p{L}\p{N}-]/gu, '') // Preserves Native Arabic Script
+          .replace(/-+/g, '-')
+      },
       validation: (Rule: any) => Rule.required(),
     },
     {
       name: 'slug_en',
       title: 'Slug (English)',
       type: 'slug',
-      options: { source: 'title_en', maxLength: 96 },
+      options: {
+        source: 'title_en',
+        maxLength: 96,
+        slugify: (input: string) => input
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^\p{L}\p{N}-]/gu, '')
+          .replace(/-+/g, '-')
+      },
     },
     {
       name: 'category',

@@ -24,7 +24,16 @@ export default {
       name: 'slug',
       title: 'Event Identifier Slug *',
       type: 'slug',
-      options: { source: 'title_fr', maxLength: 96 },
+      options: {
+        source: 'title_fr',
+        maxLength: 96,
+        slugify: (input: string) => input
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^\p{L}\p{N}-]/gu, '') // Preserves French accents
+          .replace(/-+/g, '-')
+      },
       validation: (Rule: any) => Rule.required(),
     },
     {
