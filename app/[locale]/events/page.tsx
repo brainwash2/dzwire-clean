@@ -1,6 +1,5 @@
 import { EventsClient } from "@/components/EventsClient";
 import { fetchSanityEvents } from "@/lib/sanity";
-import { events as staticEvents } from "@/lib/events";
 
 export const dynamic = "force-dynamic";
 
@@ -39,14 +38,14 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
   console.log("[EVENTS ROUTE] Fetching live events from Sanity...");
   const rawSanityEvents = await fetchSanityEvents();
   
-  let events = staticEvents;
+  let events: any[] = [];
 
   if (rawSanityEvents && rawSanityEvents.length > 0) {
     console.log(`[EVENTS ROUTE] Loaded ${rawSanityEvents.length} dynamic events from Sanity CMS.`);
     // Map Sanity structures to the client UI expectations
     events = rawSanityEvents.map(mapSanityEventToEvent);
   } else {
-    console.log("[EVENTS ROUTE] Sanity empty or offline. Falling back to static seeds.");
+    console.log("[EVENTS ROUTE] No dynamic events in Sanity CMS. Please create them in /studio.");
   }
 
   return <EventsClient locale={locale as any} initialEvents={events} />;
