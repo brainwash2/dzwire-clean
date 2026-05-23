@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { upsertArticle } from "@/lib/store";
 import { query } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 import type { Article, Category, Locale } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +41,9 @@ export async function POST(request: NextRequest) {
       
       // Delete from PostgreSQL
       await query(`DELETE FROM articles WHERE id = $1`, [_id]);
+      
+      // Purge Vercel CDN static page cache instantly
+      revalidatePath("/", "layout");
       
       return NextResponse.json({ success: true, deleted: _id });
     }
@@ -83,6 +87,9 @@ export async function POST(request: NextRequest) {
       
       // Writes through to memory cache AND PostgreSQL database atomically
       upsertArticle(mappedArticle);
+
+      // Purge Vercel CDN static page cache instantly to force HTML rebuild on next request
+      revalidatePath("/", "layout");
 
       return NextResponse.json({ success: true, synced: _id });
     }
