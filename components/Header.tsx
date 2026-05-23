@@ -24,7 +24,7 @@ export function Header({ locale }: Props) {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-black/80 backdrop-blur border-b border-white/10 px-4 py-3">
+    <header className="sticky top-0 z-[9999] bg-black/80 backdrop-blur border-b border-white/10 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href={`/${locale}`} className="flex items-center space-x-2">
           <span className="text-xl font-bold tracking-wider text-white">
@@ -83,7 +83,7 @@ export function Header({ locale }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div className="absolute right-0 mt-2 w-[420px] bg-zinc-950 border border-white/10 rounded-lg shadow-2xl p-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 grid grid-cols-2 gap-6">
+            <div className="absolute right-0 mt-2 w-[420px] bg-zinc-950 border border-white/10 rounded-lg shadow-2xl p-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[10000] grid grid-cols-2 gap-6">
               
               {/* Column 1: Monitoring & Macro Intelligence */}
               <div>
