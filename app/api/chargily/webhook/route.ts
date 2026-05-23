@@ -1,51 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyChargilySignature, PLANS } from "@/lib/chargily";
-import { initDB, upsertSubscription, pool } from "@/lib/db";
+import crypto from "crypto";
+import { upsertSubscription } from "@/lib/db";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const rawBody = await req.text();
-    const signature = req.headers.get("signature") ?? "";
+    const signature = request.headers.get("x-signature");
+    const webhookSecret = process.env.CHARGILY_WEBHOOK_SECRET;
 
-    if (!verifyChargilySignature(rawBody, signature)) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    if (!webhookSecret) {
+      console.error("Missing CHARGILY_WEBHOOK_SECRET in environment variables");
+      return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
     }
 
-    const event = JSON.parse(rawBody) as {
-      type: string;
-      data: {
-        id: string;
-        status: string;
-        amount: number;
-        metadata?: Record<string, string>;
-      };
-    };
+    if (!signature) {
+      return NextResponse.json({ error: "Missing signature header" }, { status: 401 });
+    }
 
-    await initDB();
+    const rawBody = await request.text();
 
-    const { type, data } = event;
-    const metadata = data.metadata ?? {};
-    const userId = metadata.userId;
-    const planSlug = metadata.planSlug;
+    // Verify cryptographic signature via SHA256 HMAC
+    const computedSignature = crypto
+      .createHmac("sha256", webhookSecret)
+      .update(rawBody)
+      .digest("hex");
 
-    await pool.query(
-      `INSERT INTO payment_logs (charge_id, user_id, amount, status, plan_slug, raw_data)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [data.id, userId ?? null, data.amount, data.status, planSlug ?? null, JSON.stringify(event)]
-    );
+    if (computedSignature !== signature) {
+      console.warn("[SECURITY WARN] Invalid Chargily Webhook signature rejected.");
+      return NextResponse.json({ error: "Cryptographic verification failed" }, { status: 403 });
+    }
 
-    if (type === "checkout.paid" && userId && planSlug) {
-      const plan = PLANS[planSlug];
-      let expiresAt: Date | null = null;
-      if (plan?.durationDays) {
-        expiresAt = new Date(Date.now() + plan.durationDays * 24 * 60 * 60 * 1000);
-      }
-      await upsertSubscription(userId, planSlug, expiresAt);
+    const payload = JSON.parse(rawBody);
+    console.log("[CHARGILY WEBHOOK] Signature verified. Processing event:", payload.type);
+
+    if (payload.type === "checkout.paid") {
+      const { user_id, plan_slug, expires_at } = payload.data;
+      
+      // Update PostgreSQL user subscription status
+      await upsertSubscription(
+        user_id,
+        plan_slug,
+        expires_at ? new Date(expires_at) : null
+      );
+      
+      console.log(`[CHARGILY WEBHOOK] Successfully upgraded User ${user_id} to Plan ${plan_slug}`);
     }
 
     return NextResponse.json({ received: true });
-  } catch (err) {
-    console.error("[chargily/webhook]", err);
-    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
+  } catch (error) {
+    console.error("[CHARGILY WEBHOOK ERROR]:", error);
+    return NextResponse.json({ error: "Internal processing failure" }, { status: 500 });
   }
 }

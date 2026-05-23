@@ -7,17 +7,19 @@ export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get("authorization");
     
-    // Protect the database ingestion gateway from malicious triggers in production
+    // Defensive extraction: normalize multiple spaces and capture the bearer token
+    const token = authHeader?.replace(/\s+/g, " ").trim().split(" ")[1];
+    
     if (
       process.env.NODE_ENV === "production" && 
-      authHeader !== `Bearer ${process.env.INTERNAL_INGESTION_SECRET}`
+      token !== process.env.INTERNAL_INGESTION_SECRET
     ) {
+      console.warn("[CRON GATEWAY] Unauthorized access attempt blocked.");
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 
-    console.log("[CRON GATEWAY]: Starting secure batch ingestion...");
+    console.log("[CRON GATEWAY] Secure credentials verified. Running ingestion pipeline...");
     
-    // Execute async fetch workers
     await runIngestion();
     await Promise.all([fetchWeather(), fetchHolidays()]);
 
