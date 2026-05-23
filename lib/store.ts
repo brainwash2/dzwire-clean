@@ -53,15 +53,26 @@ export function getArticleById(id: string): Article | undefined {
   return global.__articlesCache!.get(id);
 }
 
+/**
+ * Retrieves articles by slug, defensively decoding percent-encoded browser paths
+ */
 export function getArticleBySlug(
   locale: string,
   category: string,
   slug: string
 ): Article | undefined {
+  const decodedSlug = decodeURIComponent(slug);
   return Array.from(global.__articlesCache!.values()).find((a) => {
     if (a.category !== category) return false;
     const s = a.slug as unknown as Record<string, string | undefined>;
-    return s[locale] === slug || s.fr === slug || s.ar === slug;
+    return (
+      s[locale] === slug || 
+      s[locale] === decodedSlug ||
+      s.fr === slug || 
+      s.fr === decodedSlug ||
+      s.ar === slug || 
+      s.ar === decodedSlug
+    );
   });
 }
 
