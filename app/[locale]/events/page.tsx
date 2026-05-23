@@ -48,5 +48,5 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
     console.log("[EVENTS ROUTE] No dynamic events in Sanity CMS. Please create them in /studio.");
   }
 
-  return <EventsClient locale={locale as any} initialEvents={events} />;
+  return <EventsClient locale={locale as any} events={events} />;
 }
