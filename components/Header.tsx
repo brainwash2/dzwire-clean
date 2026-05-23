@@ -74,26 +74,61 @@ export function Header({ locale }: Props) {
           >
             {t(locale, "economy")}
           </Link>
+          
+          {/* Explore Category Mega-Menu */}
           <div className="relative group">
-            <button className="text-gray-300 hover:text-emerald-500 transition flex items-center space-x-1 py-1">
+            <button className="text-gray-300 hover:text-emerald-500 transition flex items-center space-x-1 py-1 cursor-pointer">
               <span>{locale === "ar" ? "استكشف" : "Explore"}</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div className="absolute right-0 mt-1 w-48 bg-zinc-950 border border-white/10 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <Link href={`/${locale}/medias-sociaux`} className="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-900 hover:text-emerald-500">
-                {locale === "ar" ? "وسائل التواصل الاجتماعي" : "Social Media"}
-              </Link>
-              <Link href={`/${locale}/culture-gaming`} className="block px-4 py-2 text-sm text-gray-300 hover:bg-zinc-900 hover:text-emerald-500">
-                {locale === "ar" ? "ثقافة وألعاب" : "Culture & Gaming"}
-              </Link>
+            <div className="absolute right-0 mt-2 w-[420px] bg-zinc-950 border border-white/10 rounded-lg shadow-2xl p-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 grid grid-cols-2 gap-6">
+              
+              {/* Column 1: Monitoring & Macro Intelligence */}
+              <div>
+                <span className="text-xs font-semibold text-emerald-500 uppercase tracking-wider block mb-2.5">
+                  {locale === "ar" ? "📊 لوحة المراقبة" : "📊 Monitoring"}
+                </span>
+                <div className="space-y-2">
+                  <Link href={`/${locale}/wire`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
+                    {locale === "ar" ? "شريط الأخبار" : locale === "fr" ? "Le Wire" : "The Wire"}
+                  </Link>
+                  <Link href={`/${locale}/globe`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
+                    {locale === "ar" ? "الكرة الأرضية" : locale === "fr" ? "Le Globe" : "The Globe"}
+                  </Link>
+                  <Link href={`/${locale}/maps`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
+                    {locale === "ar" ? "الخرائط" : locale === "fr" ? "Les Cartes" : "The Maps"}
+                  </Link>
+                  <Link href={`/${locale}/events`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
+                    {locale === "ar" ? "الأحداث" : locale === "fr" ? "Événements" : "Events"}
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Column 2: Trends & Cultural Feeds */}
+              <div>
+                <span className="text-xs font-semibold text-emerald-500 uppercase tracking-wider block mb-2.5">
+                  {locale === "ar" ? "🔥 التوجهات" : "�� Trends"}
+                </span>
+                <div className="space-y-2">
+                  <Link href={`/${locale}/medias-sociaux`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
+                    {locale === "ar" ? "وسائل التواصل" : locale === "fr" ? "Médias Sociaux" : "Social Tracker"}
+                  </Link>
+                  <Link href={`/${locale}/culture-gaming`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
+                    {locale === "ar" ? "ثقافة وألعاب" : locale === "fr" ? "Culture & Gaming" : "Culture & Gaming"}
+                  </Link>
+                </div>
+              </div>
+              
             </div>
           </div>
         </nav>
 
-        {/* Right side: Lang Switcher & Clerk Authentication */}
+        {/* Right side: Lang Switcher, Workspace & Clerk Auth */}
         <div className="flex items-center space-x-4">
+          
+          {/* Trilingual Language Selector */}
           <div className="flex items-center bg-zinc-900 rounded-md p-0.5 border border-white/5">
             <Link
               href="/fr"
@@ -121,7 +156,20 @@ export function Header({ locale }: Props) {
             </Link>
           </div>
 
-          {/* Clerk v7 Identity Controls */}
+          {/* User Workspace (Saved Bookmarks Icon) - Only visible when Signed In */}
+          <Show when="signed-in">
+            <Link
+              href={`/${locale}/bookmarks`}
+              className="text-gray-400 hover:text-emerald-500 transition p-1.5 rounded-md hover:bg-zinc-900 border border-transparent hover:border-white/5"
+              title={locale === "ar" ? "المحفوظات" : locale === "fr" ? "Articles sauvegardés" : "Saved Bookmarks"}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+            </Link>
+          </Show>
+
+          {/* Clerk v7 Identity Auth Controls */}
           <Show when="signed-out">
             <SignInButton mode="modal">
               <button className="bg-zinc-950 border border-white/10 hover:border-emerald-500 text-gray-300 hover:text-white px-3.5 py-1.5 rounded-md text-sm transition font-medium cursor-pointer">
@@ -138,6 +186,7 @@ export function Header({ locale }: Props) {
               }}
             />
           </Show>
+          
         </div>
       </div>
     </header>
