@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { upsertArticle, query } from "@/lib/store";
+import { upsertArticle } from "@/lib/store";
+import { query } from "@/lib/db";
 import type { Article, Category, Locale } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
