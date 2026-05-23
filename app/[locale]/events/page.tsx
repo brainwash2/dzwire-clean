@@ -1,4 +1,4 @@
-import { EventsClient } from "@/components/EventsClient";
+import EventsClient from "@/components/EventsClient";
 import { fetchSanityEvents } from "@/lib/sanity";
 
 export const dynamic = "force-dynamic";
