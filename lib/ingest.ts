@@ -1,229 +1,177 @@
-import type { Article, WeatherData, Holiday, Category } from "./types";
-import { upsertArticles, setWeather, setHolidays, setDigest, getAllArticles } from "./store";
-import { writeArticleToSanity } from "./sanity";
+import { upsertArticles, setDigest, setWeather, setHolidays } from "./store";
+import type { Article, Category, Locale, Digest, WeatherData, Holiday } from "./types";
 
-const WEATHER_CODES: Record<number, { fr: string; ar: string; en: string; icon: string }> = {
-  0: { fr: "Ciel dégagé", ar: "صافٍ", en: "Clear sky", icon: "☀️" },
-  1: { fr: "Peu nuageux", ar: "قليل السحب", en: "Mainly clear", icon: "🌤️" },
-  2: { fr: "Partiellement nuageux", ar: "غائم جزئياً", en: "Partly cloudy", icon: "⛅" },
-  3: { fr: "Couvert", ar: "ملبّد", en: "Overcast", icon: "☁️" },
-  45: { fr: "Brouillard", ar: "ضباب", en: "Fog", icon: "🌫️" },
-  48: { fr: "Brouillard givrant", ar: "ضباب متجمد", en: "Icy fog", icon: "🌫️" },
-  51: { fr: "Bruine légère", ar: "رذاذ خفيف", en: "Light drizzle", icon: "🌦️" },
-  61: { fr: "Pluie légère", ar: "مطر خفيف", en: "Light rain", icon: "🌧️" },
-  71: { fr: "Neige légère", ar: "ثلج خفيف", en: "Light snow", icon: "🌨️" },
-  80: { fr: "Averses", ar: "زخات مطر", en: "Rain showers", icon: "🌦️" },
-  95: { fr: "Orage", ar: "عاصفة رعدية", en: "Thunderstorm", icon: "⛈️" },
-};
-
-function getWeatherInfo(code: number) {
-  return WEATHER_CODES[code] ?? { fr: "Variable", ar: "متغير", en: "Variable", icon: "🌡️" };
+interface ScraperSource {
+  name: string;
+  url: string;
+  category: Category;
+  lang: Locale;
 }
 
-function generateId(): string {
-  return `rss-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
+const SOURCES: ScraperSource[] = [
+  { name: "TSA Algérie", url: "https://www.tsa-algerie.com/feed/", category: "politique", lang: "fr" },
+  { name: "El Khabar", url: "https://www.elkhabar.com/press/rss/", category: "energie-economie", lang: "ar" },
+  { name: "Echorouk", url: "https://echoroukonline.com/feed/", category: "politique", lang: "ar" }
+];
 
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .slice(0, 80);
-}
+/**
+ * High-performance, zero-dependency RegExp RSS XML Parser.
+ * Runs instantly in Vercel Serverless & Edge environments.
+ */
+function parseRSSXml(xmlText: string): any[] {
+  const items: any[] = [];
+  const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+  let match;
+  
+  while ((match = itemRegex.exec(xmlText)) !== null) {
+    const itemContent = match[1];
+    
+    // Extract Title (supporting CDATA blocks)
+    const title = itemContent.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/)?.[1]
+      || itemContent.match(/<title>([\s\S]*?)<\/title>/)?.[1] || "";
+      
+    // Extract Link
+    const link = itemContent.match(/<link>([\s\S]*?)<\/link>/)?.[1] || "";
+    
+    // Extract PubDate
+    const pubDate = itemContent.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1] || "";
+    
+    // Extract Description/Excerpt (supporting CDATA blocks)
+    const description = itemContent.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/)?.[1]
+      || itemContent.match(/<description>([\s\S]*?)<\/description>/)?.[1] || "";
+      
+    // Extract Image URL from various standard RSS tags
+    const imageUrl = itemContent.match(/<enclosure[^>]*url="([^"]*)"/)?.[1]
+      || itemContent.match(/<media:content[^>]*url="([^"]*)"/)?.[1]
+      || itemContent.match(/<img[^>]*src="([^"]*)"/)?.[1] || "";
 
-interface RSS2JSONResponse {
-  status: string;
-  items: Array<{
-    title?: string;
-    description?: string;
-    content?: string;
-    link?: string;
-    thumbnail?: string;
-    pubDate?: string;
-    categories?: string[];
-  }>;
-}
-
-export async function fetchRSSFeed(
-  feedUrl: string,
-  lang: "fr" | "ar",
-  defaultCategory: Category
-): Promise<Article[]> {
-  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}&count=10`;
-  try {
-    const res = await fetch(apiUrl, { next: { revalidate: 600 } });
-    if (!res.ok) return [];
-    const data = (await res.json()) as RSS2JSONResponse;
-    if (data.status !== "ok" || !data.items) return [];
-
-    return data.items.slice(0, 10).map((item) => {
-      const title = item.title ?? "Sans titre";
-      const id = generateId();
-      const slug = slugify(title);
-      const placeholderImg = `https://picsum.photos/seed/${id}/800/450`;
-      const excerpt = (item.description ?? "").replace(/<[^>]*>/g, "").slice(0, 200).trim() || title;
-      const content = (item.content ?? item.description ?? "").replace(/<[^>]*>/g, "").trim() || excerpt;
-
-      return {
-        id,
-        title: { fr: title, ar: title },
-        slug: { fr: slug, ar: slug },
-        excerpt: { fr: excerpt, ar: excerpt },
-        content: { fr: content, ar: content },
-        category: defaultCategory,
-        source: new URL(feedUrl).hostname.replace("www.", ""),
-        sourceUrl: item.link ?? feedUrl,
-        imageUrl: item.thumbnail || placeholderImg,
-        publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
-        lang,
-        tags: item.categories?.slice(0, 3) ?? [],
-        curatedBy: "DzWire",
-      } as Article;
+    items.push({
+      title: title.trim(),
+      link: link.trim(),
+      pubDate: pubDate.trim(),
+      description: description.trim(),
+      imageUrl: imageUrl.trim()
     });
-  } catch {
-    return [];
   }
+  return items;
 }
 
-export async function fetchHackerNewsStories(): Promise<Article[]> {
-  try {
-    const idsRes = await fetch("https://hacker-news.firebaseio.com/v0/topstories.json", {
-      next: { revalidate: 600 },
-    });
-    if (!idsRes.ok) return [];
-    const ids = (await idsRes.json()) as number[];
-    const top5 = ids.slice(0, 5);
+export async function runIngestion(): Promise<void> {
+  console.log("[INGESTION] Launching autonomous direct XML crawler pass...");
+  const allArticles: Article[] = [];
 
-    const stories = await Promise.allSettled(
-      top5.map((id) =>
-        fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`, {
-          next: { revalidate: 600 },
-        }).then((r) => r.json())
-      )
-    );
-
-    const articles: Article[] = [];
-    for (const result of stories) {
-      if (result.status !== "fulfilled" || !result.value?.title) continue;
-      const story = result.value as {
-        id: number;
-        title: string;
-        url?: string;
-        score: number;
-        time: number;
-      };
-      const id = `hn-${story.id}`;
-      const slug = slugify(story.title);
-      const excerpt = `HN Score: ${story.score} — ${story.title}`;
-      articles.push({
-        id,
-        title: { fr: story.title, ar: story.title, en: story.title },
-        slug: { fr: slug, ar: slug, en: slug },
-        excerpt: { fr: excerpt, ar: excerpt, en: excerpt },
-        content: {
-          fr: `Article Hacker News — Score: ${story.score}. Lien: ${story.url ?? "#"}`,
-          ar: `مقال هاكر نيوز — النقاط: ${story.score}. الرابط: ${story.url ?? "#"}`,
-          en: `Hacker News article — Score: ${story.score}. Link: ${story.url ?? "#"}`,
-        },
-        category: "tech-innovation",
-        source: "Hacker News",
-        sourceUrl: story.url ?? `https://news.ycombinator.com/item?id=${story.id}`,
-        imageUrl: `https://picsum.photos/seed/hn${story.id}/800/450`,
-        publishedAt: new Date(story.time * 1000).toISOString(),
-        lang: "en",
-        tags: ["tech", "hacker-news"],
-        curatedBy: "DzWire",
+  for (const src of SOURCES) {
+    try {
+      console.log(`[INGESTION] Fetching raw XML from: ${src.name}...`);
+      const response = await fetch(src.url, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) DzWireCrawler/1.0" },
+        next: { revalidate: 0 } // Bypass standard fetch caching
       });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const xmlText = await response.text();
+      
+      // Parse RSS directly
+      const rawItems = parseRSSXml(xmlText);
+      console.log(`[INGESTION] Successfully parsed ${rawItems.length} items from ${src.name}.`);
+
+      // Map parsed items to standardized Article schema
+      for (const item of rawItems.slice(0, 5)) { // Limit to top 5 articles per source
+        const id = `scraped-${src.name.toLowerCase().replace(/\s+/g, "-")}-${encodeURIComponent(item.link).slice(-20)}`;
+        
+        const newArticle: Article = {
+          id,
+          title: {
+            fr: src.lang === "fr" ? item.title : "",
+            ar: src.lang === "ar" ? item.title : "",
+            en: ""
+          },
+          slug: {
+            fr: src.lang === "fr" ? item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : "",
+            ar: src.lang === "ar" ? "article-" + id : "",
+            en: ""
+          },
+          excerpt: {
+            fr: src.lang === "fr" ? item.description.replace(/<[^>]*>/g, "").slice(0, 160) : "",
+            ar: src.lang === "ar" ? item.description.replace(/<[^>]*>/g, "").slice(0, 160) : "",
+            en: ""
+          },
+          content: {
+            fr: src.lang === "fr" ? item.description : "",
+            ar: src.lang === "ar" ? item.description : "",
+            en: ""
+          },
+          category: src.category,
+          source: src.name,
+          sourceUrl: item.link,
+          imageUrl: item.imageUrl || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&auto=format&fit=crop&q=60",
+          publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
+          lang: src.lang,
+          tags: ["Scraped", src.name],
+          isSponsored: false,
+          isPremium: false
+        };
+
+        allArticles.push(newArticle);
+      }
+    } catch (e) {
+      console.error(`[INGESTION ERROR] Failed to fetch or parse ${src.name}:`, e);
     }
-    return articles;
-  } catch {
-    return [];
   }
+
+  if (allArticles.length > 0) {
+    console.log(`[INGESTION] Flushed ${allArticles.length} newly crawled articles directly to PostgreSQL cache.`);
+    upsertArticles(allArticles);
+    await buildEditorialDigest(allArticles);
+  }
+}
+
+async function buildEditorialDigest(articles: Article[]): Promise<void> {
+  const latest = articles.slice(0, 3);
+  const digest: Digest = {
+    textFr: `Flash Info : ${latest.map(a => a.title.fr || a.title.ar).join(" | ")}`,
+    textAr: `موجز الأخبار : ${latest.map(a => a.title.ar || a.title.fr).join(" | ")}`,
+    generatedAt: new Date().toISOString()
+  };
+  setDigest(digest);
 }
 
 export async function fetchWeather(): Promise<void> {
   try {
-    const url =
-      "https://api.open-meteo.com/v1/forecast?latitude=36.75&longitude=3.04&current_weather=true";
-    const res = await fetch(url, { cache: "no-store" });
+    // Fetch Algiers (latitude 36.75, longitude 3.06) weather parameters
+    const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=36.75&longitude=3.06&current_weather=true");
     if (!res.ok) return;
-    const data = (await res.json()) as {
-      current_weather: { temperature: number; weathercode: number; windspeed: number };
+    const data = await res.json();
+    const current = data.current_weather;
+    
+    const weatherData: WeatherData = {
+      temperature: current.temperature,
+      weathercode: current.weathercode,
+      windspeed: current.windspeed,
+      condition: "Algiers Local Weather",
+      icon: "☀️"
     };
-    const cw = data.current_weather;
-    const info = getWeatherInfo(cw.weathercode);
-    const weather: WeatherData = {
-      temperature: Math.round(cw.temperature),
-      weathercode: cw.weathercode,
-      windspeed: Math.round(cw.windspeed),
-      condition: info.fr,
-      icon: info.icon,
-    };
-    setWeather(weather);
-  } catch {}
+    setWeather(weatherData);
+  } catch (e) {
+    console.error("[WEATHER ERROR]:", e);
+  }
 }
 
 export async function fetchHolidays(): Promise<void> {
   try {
-    const res = await fetch("https://date.nager.at/api/v3/NextPublicHolidays/DZ", {
-      next: { revalidate: 3600 },
-    });
+    const year = new Date().getFullYear();
+    const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/DZ`);
     if (!res.ok) return;
-    const data = (await res.json()) as Array<{
-      date: string;
-      localName: string;
-      name: string;
-      countryCode: string;
-    }>;
-    setHolidays(data.slice(0, 3));
-  } catch {}
-}
-
-export async function generateDigest(): Promise<void> {
-  const articles = getAllArticles().slice(0, 3);
-  if (articles.length === 0) return;
-
-  const summariesFr = articles.map((a, i) => `${i + 1}. ${a.title.fr}: ${a.excerpt.fr}`).join(" ");
-  const summariesAr = articles.map((a, i) => `${i + 1}. ${a.title.ar}: ${a.excerpt.ar}`).join(" ");
-  const summariesEn = articles
-    .map((a, i) => `${i + 1}. ${a.title.en ?? a.title.fr}: ${a.excerpt.en ?? a.excerpt.fr}`)
-    .join(" ");
-
-  const dateFr = new Date().toLocaleDateString("fr-DZ", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-  const dateAr = new Date().toLocaleDateString("ar-DZ", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-  const dateEn = new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-
-  setDigest({
-    textFr: `Bulletin DzWire du ${dateFr} — ${summariesFr}`,
-    textAr: `نشرة DzWire ليوم ${dateAr} — ${summariesAr}`,
-    textEn: `DzWire digest for ${dateEn} — ${summariesEn}`,
-    generatedAt: new Date().toISOString(),
-  });
-}
-
-async function writeBatchToSanity(articles: Article[]): Promise<void> {
-  await Promise.allSettled(articles.slice(0, 10).map((a) => writeArticleToSanity(a)));
-}
-
-export async function runIngestion(): Promise<void> {
-  const [hnArticles, rss1, rss2, rss3] = await Promise.allSettled([
-    fetchHackerNewsStories(),
-    fetchRSSFeed("https://www.elkhabar.com/feed", "ar", "politique"),
-    fetchRSSFeed("https://www.echoroukonline.com/feed", "ar", "politique"),
-    fetchRSSFeed("https://www.tsa-algerie.com/feed", "fr", "politique"),
-  ]);
-
-  const allArticles: Article[] = [];
-  for (const r of [hnArticles, rss1, rss2, rss3]) {
-    if (r.status === "fulfilled") allArticles.push(...r.value);
+    const data = await res.json();
+    
+    const holidays: Holiday[] = data.slice(0, 5).map((h: any) => ({
+      date: h.date,
+      localName: h.localName,
+      name: h.name,
+      countryCode: h.countryCode
+    }));
+    setHolidays(holidays);
+  } catch (e) {
+    console.error("[HOLIDAYS ERROR]:", e);
   }
-
-  if (allArticles.length > 0) {
-    upsertArticles(allArticles);
-    writeBatchToSanity(allArticles).catch(() => {});
-  }
-
-  await Promise.allSettled([fetchWeather(), fetchHolidays()]);
-  await generateDigest();
 }

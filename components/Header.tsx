@@ -97,7 +97,7 @@ export function Header({ locale }: Props) {
                   <Link href={`/${locale}/globe`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
                     {locale === "ar" ? "الكرة الأرضية" : locale === "fr" ? "Le Globe" : "The Globe"}
                   </Link>
-                  <Link href={`/${locale}/maps`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
+                  <Link href={`/${locale}/map`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
                     {locale === "ar" ? "الخرائط" : locale === "fr" ? "Les Cartes" : "The Maps"}
                   </Link>
                   <Link href={`/${locale}/events`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
@@ -109,7 +109,7 @@ export function Header({ locale }: Props) {
               {/* Column 2: Trends & Cultural Feeds */}
               <div>
                 <span className="text-xs font-semibold text-emerald-500 uppercase tracking-wider block mb-2.5">
-                  {locale === "ar" ? "🔥 التوجهات" : "�� Trends"}
+                  {locale === "ar" ? "🔥 التوجهات" : "🔥 Trends"}
                 </span>
                 <div className="space-y-2">
                   <Link href={`/${locale}/medias-sociaux`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
