@@ -1,7 +1,7 @@
 import React from "react";
 import { Inter } from "next/font/google";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import Footer from "@/components/Footer";
 import { ConsentBanner } from "@/components/ConsentBanner";
 import { ClerkProvider } from "@clerk/nextjs";
 import "@/app/globals.css";
