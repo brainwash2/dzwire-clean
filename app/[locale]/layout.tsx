@@ -7,7 +7,7 @@ import MarketTicker from "@/components/MarketTicker";
 import { ClerkProvider } from "@clerk/nextjs";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import "../globals.css"; // Enforces direct, relative global CSS import
+import "./globals.css"; // Restored to your original, compile-safe import path
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,13 +24,13 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
   const { locale } = await params;
   const dir = locale === "ar" ? "rtl" : "ltr";
   
-  // Fetch localized dictionary messages for NextIntl Client context
+  // Fetch dynamic localization messages for NextIntl Client context
   const messages = await getMessages();
 
   return (
-    <html lang={locale} dir={dir} className="dark">
-      <body className={`${inter.className} bg-black text-white antialiased min-h-screen flex flex-col`}>
-        <ClerkProvider>
+    <ClerkProvider>
+      <html lang={locale} dir={dir} className="dark">
+        <body className={`${inter.className} bg-black text-white antialiased min-h-screen flex flex-col`}>
           <NextIntlClientProvider messages={messages}>
             {/* Infinite financial cross-rates ticker */}
             <MarketTicker locale={locale as any} />
@@ -45,8 +45,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
             <Footer locale={locale as any} />
             <ConsentBanner locale={locale as any} />
           </NextIntlClientProvider>
-        </ClerkProvider>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
