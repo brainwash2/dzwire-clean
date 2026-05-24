@@ -119,3 +119,26 @@ body {
   );
   pointer-events: none;
 }
+
+/* -----------------------------------------------------------------------------
+ * Infinite Scrolling Currency Ticker Animation (Pure CSS GPU-Accelerated)
+ * ----------------------------------------------------------------------------- */
+@keyframes scroll-ticker {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-33.3333%, 0, 0);
+  }
+}
+
+.animate-scroll-ticker {
+  display: flex;
+  width: max-content;
+  animation: scroll-ticker 35s linear infinite;
+  will-change: transform;
+}
+
+.animate-scroll-ticker:hover {
+  animation-play-state: paused; /* Interactive Pause on Hover */
+}

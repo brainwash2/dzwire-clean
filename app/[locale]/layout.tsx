@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Header } from "@/components/Header";
 import Footer from "@/components/Footer";
 import ConsentBanner from "@/components/ConsentBanner";
+import MarketTicker from "@/components/MarketTicker";
 import { ClerkProvider } from "@clerk/nextjs";
 import "@/app/globals.css";
 
@@ -25,6 +26,9 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
     <ClerkProvider>
       <html lang={locale} dir={dir} className="dark">
         <body className={`${inter.className} bg-black text-white antialiased min-h-screen flex flex-col`}>
+          {/* Render the infinite financial cross-rates ticker */}
+          <MarketTicker locale={locale as any} />
+          
           <Header locale={locale as any} />
           <main className="flex-grow max-w-7xl mx-auto w-full px-4 py-6">
             {children}
