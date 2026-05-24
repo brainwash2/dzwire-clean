@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import { AuthProvider } from "@/components/AuthProvider";
+import "./[locale]/globals.css"; // Points to the active, compiled stylesheet
 
 export const metadata: Metadata = {
-  title: {
-    default: "DzWire — Actualités Algériennes",
-    template: "%s | DzWire",
-  },
-  description:
-    "DzWire : la plateforme trilingue d'actualités algériennes. Politique, économie, tech, culture et sport en français, arabe et anglais.",
-  keywords: ["Algérie", "actualités", "news", "DzWire", "الجزائر", "أخبار", "Algeria"],
-  openGraph: { type: "website", siteName: "DzWire" },
-  robots: { index: true, follow: true },
+  title: "DzWire Terminal",
+  description: "Algerian Macroeconomic & Situational Awareness Terminal",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return children;
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html>
+      <body>{children}</body>
+    </html>
+  );
 }
