@@ -2,8 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Keep existing theme/globals from your project here... */
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+  --accent-green: #10b981;
+}
 
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #000000;
+}
+
+/* Reading Progress Bar Customization */
+#nprogress .bar {
+  background: #10b981 !important;
+  height: 3px !important;
+}
+
+#nprogress .spinner-icon {
+  border-top-color: #10b981 !important;
+  border-left-color: #10b981 !important;
+}
+
+/* Custom Scrollbar for Terminals */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f1f1f;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2d2d2d;
+}
+
+/* -----------------------------------------------------------------------------
+ * Infinite Scrolling Currency Ticker Animation (Pure CSS GPU-Accelerated)
+ * ----------------------------------------------------------------------------- */
 @layer utilities {
   @keyframes scroll-ticker {
     0% {
