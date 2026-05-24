@@ -7,7 +7,7 @@ import MarketTicker from "@/components/MarketTicker";
 import { ClerkProvider } from "@clerk/nextjs";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import "./globals.css"; // Direct, local CSS import
+import "./globals.css"; // Imports the clean, single stylesheet
 
 const inter = Inter({ subsets: ["latin"] });
 

@@ -24,7 +24,7 @@ export default async function MarketTicker({ locale }: Props) {
   try {
     const isAr = locale === "ar";
 
-    // Fetch exchange rate matrix and active sponsored announcements in parallel from PostgreSQL
+    // Fetch exchange rate matrix and active sponsored announcements in parallel
     const [tickerResult, sponsorResult] = await Promise.all([
       query<TickerRow>(
         `SELECT * FROM market_tickers 
@@ -77,14 +77,12 @@ export default async function MarketTicker({ locale }: Props) {
       combinedList.push(
         `${item.code}/DZD | ${isAr ? "البنك:" : "Bank:"} ${item.official} | ${isAr ? "السكوار:" : "Square:"} ${item.parallel} | ${isAr ? "الفارق:" : "Spread:"} +${item.spread} (+${item.percent}%)`
       );
-      // Inject a sponsored news item every 2 tickers
       if (idx % 2 === 1 && activeSponsorTexts.length > 0) {
         const sponsorText = activeSponsorTexts[(idx / 2 - 0.5) % activeSponsorTexts.length];
         combinedList.push(sponsorText);
       }
     });
 
-    // Triple the list to ensure seamless, infinite wrapping with no gaps
     const duplicatedItems = [...combinedList, ...combinedList, ...combinedList];
 
     return (
@@ -92,7 +90,8 @@ export default async function MarketTicker({ locale }: Props) {
         className="w-full bg-zinc-950 border-b border-white/5 py-2 overflow-hidden relative z-[99999] text-[11px] font-mono border-t border-zinc-900 select-none"
         dir="ltr"
       >
-        <div className="animate-scroll-ticker gap-16">
+        {/* Enforces Tailwind's compiler-safe, GPU-accelerated scrolling class */}
+        <div className="flex animate-scroll-ticker gap-16 w-max">
           {duplicatedItems.map((text, index) => {
             const isSponsor = text.includes("[Sponsor:");
             return (
