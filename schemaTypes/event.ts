@@ -91,6 +91,11 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
+      name: 'location_en',
+      title: 'Venue Location (English)',
+      type: 'string',
+    },
+    {
       name: 'description_fr',
       title: 'Detailed Description (French)',
       type: 'text',
@@ -99,6 +104,16 @@ export default {
       name: 'description_ar',
       title: 'Detailed Description (Arabic)',
       type: 'text',
+    },
+    {
+      name: 'description_en',
+      title: 'Detailed Description (English)',
+      type: 'text',
+    },
+    {
+      name: 'imageUrl',
+      title: 'Featured Image URL',
+      type: 'url',
     },
     {
       name: 'isFeatured',

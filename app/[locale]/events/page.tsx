@@ -21,13 +21,14 @@ function mapSanityEventToEvent(se: any): any {
     location: { 
       fr: se.location_fr, 
       ar: se.location_ar, 
-      en: se.location_fr 
+      en: se.location_en || se.location_fr 
     },
     description: { 
       fr: se.description_fr || "", 
       ar: se.description_ar || "", 
-      en: se.description_fr || "" 
+      en: se.description_en || se.description_fr || "" 
     },
+    imageUrl: se.imageUrl || undefined, // Map the newly created image URL field
     isFeatured: se.isFeatured || false
   };
 }
