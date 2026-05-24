@@ -94,8 +94,8 @@ export function Header({ locale }: Props) {
                   <Link href={`/${locale}/wire`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
                     {locale === "ar" ? "شريط الأخبار" : locale === "fr" ? "Le Wire" : "The Wire"}
                   </Link>
-                  <Link href={`/${locale}/globe`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
-                    {locale === "ar" ? "الكرة الأرضية" : locale === "fr" ? "Le Globe" : "The Globe"}
+                  <Link href={`/${locale}/data`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
+                    {locale === "ar" ? "محطة البيانات المالية" : locale === "fr" ? "Terminal de données" : "Data Terminal"}
                   </Link>
                   <Link href={`/${locale}/map`} className="block text-sm text-gray-300 hover:text-emerald-500 transition">
                     {locale === "ar" ? "الخرائط" : locale === "fr" ? "Les Cartes" : "The Maps"}
