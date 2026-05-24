@@ -1,12 +1,18 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 0, 0, 0;
   --background-end-rgb: 0, 0, 0;
   --accent-green: #10b981;
+  --accent-green-dim: #052e16;
+  --accent-magenta: #c026d3;
+  --text-primary: rgb(255 255 255);
+  --text-secondary: rgb(209 213 219);
+  --text-muted: rgb(156 163 175);
+  --bg-card: rgb(17 17 17);
+  --border-default: rgb(31 31 31);
+  --accent-green-glow: #10b981;
 }
 
 body {
@@ -31,4 +37,18 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #2d2d2d;
+}
+
+/* Tailwind v4 custom animations */
+@theme {
+  --animate-scroll-ticker: scroll-ticker 35s linear infinite;
+}
+
+@keyframes scroll-ticker {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-33.3333%, 0, 0);
+  }
 }
