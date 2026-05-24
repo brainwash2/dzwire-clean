@@ -7,7 +7,7 @@ import MarketTicker from "@/components/MarketTicker";
 import { ClerkProvider } from "@clerk/nextjs";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import "@/app/globals.css";
+import "../globals.css"; // Enforces direct, relative global CSS import
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,7 +30,6 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
   return (
     <html lang={locale} dir={dir} className="dark">
       <body className={`${inter.className} bg-black text-white antialiased min-h-screen flex flex-col`}>
-        {/* Next.js strict standard: Keep all React Context Providers inside the body tag */}
         <ClerkProvider>
           <NextIntlClientProvider messages={messages}>
             {/* Infinite financial cross-rates ticker */}
@@ -38,6 +37,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
             
             <Header locale={locale as any} />
             
+            {/* Restored to original full-width container to prevent layout breakages */}
             <main className="min-h-screen bg-black text-white">
               {children}
             </main>

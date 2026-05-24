@@ -34,22 +34,24 @@ body {
 }
 
 /* -----------------------------------------------------------------------------
- * Infinite Scrolling Currency Ticker Animation (Pure CSS GPU-Accelerated)
+ * Infinite Scrolling Currency Ticker Animation (Standard CSS - Compile Safe)
  * ----------------------------------------------------------------------------- */
-@layer utilities {
-  @keyframes scroll-ticker {
-    0% {
-      transform: translate3d(0, 0, 0);
-    }
-    100% {
-      transform: translate3d(-33.3333%, 0, 0);
-    }
+@keyframes scroll-ticker {
+  0% {
+    transform: translate3d(0, 0, 0);
   }
+  100% {
+    transform: translate3d(-33.3333%, 0, 0);
+  }
+}
 
-  .animate-scroll-ticker {
-    display: flex !important;
-    width: max-content !important;
-    animation: scroll-ticker 35s linear infinite !important;
-    will-change: transform !important;
-  }
+.animate-scroll-ticker {
+  display: flex !important;
+  width: max-content !important;
+  animation: scroll-ticker 35s linear infinite !important;
+  will-change: transform !important;
+}
+
+.animate-scroll-ticker:hover {
+  animation-play-state: paused;
 }
