@@ -6,18 +6,44 @@ interface Props {
   locale: Locale;
 }
 
+interface TickerRow {
+  symbol: string;
+  price: number;
+  type: string;
+  currency_code: string;
+}
+
+interface SponsorAnnouncement {
+  text_fr: string;
+  text_ar: string;
+  text_en: string;
+  sponsor_name: string;
+}
+
 export default async function MarketTicker({ locale }: Props) {
   try {
-    // Fetch all active exchange rate matrices
-    const { rows } = await query(
-      `SELECT * FROM market_tickers 
-       WHERE currency_code IS NOT NULL 
-       ORDER BY currency_code ASC, type DESC`
-    );
+    const isAr = locale === "ar";
+
+    // Fetch exchange rate matrix and active sponsored announcements in parallel from PostgreSQL
+    const [tickerResult, sponsorResult] = await Promise.all([
+      query<TickerRow>(
+        `SELECT * FROM market_tickers 
+         WHERE currency_code IS NOT NULL 
+         ORDER BY currency_code ASC, type DESC`
+      ),
+      query<SponsorAnnouncement>(
+        `SELECT text_fr, text_ar, text_en, sponsor_name 
+         FROM sponsor_announcements 
+         WHERE active = TRUE AND (expires_at IS NULL OR expires_at > NOW())`
+      )
+    ]);
+
+    const rows = tickerResult.rows;
+    const sponsors = sponsorResult.rows;
 
     if (rows.length === 0) return null;
 
-    // Group rows by currency code to compute the spread margins
+    // Group rows by currency code
     const groups: Record<string, { official?: number; parallel?: number }> = {};
     for (const row of rows) {
       const code = row.currency_code;
@@ -39,29 +65,47 @@ export default async function MarketTicker({ locale }: Props) {
       };
     });
 
-    // Triple the items to ensure seamless wrapping with no gaps
-    const duplicatedItems = [...items, ...items, ...items];
+    // Extract and localize active sponsored notices
+    const activeSponsorTexts = sponsors.map((s) => {
+      const text = locale === "ar" ? s.text_ar : locale === "en" ? s.text_en : s.text_fr;
+      return `⚡ [Sponsor: ${s.sponsor_name}] ${text}`;
+    });
 
-    const isAr = locale === "ar";
+    // Interweave currency spreads with active sponsored news items
+    const combinedList: string[] = [];
+    items.forEach((item, idx) => {
+      combinedList.push(
+        `${item.code}/DZD | ${isAr ? "البنك:" : "Bank:"} ${item.official} | ${isAr ? "السكوار:" : "Square:"} ${item.parallel} | ${isAr ? "الفارق:" : "Spread:"} +${item.spread} (+${item.percent}%)`
+      );
+      // Inject a sponsored news item every 2 tickers
+      if (idx % 2 === 1 && activeSponsorTexts.length > 0) {
+        const sponsorText = activeSponsorTexts[(idx / 2 - 0.5) % activeSponsorTexts.length];
+        combinedList.push(sponsorText);
+      }
+    });
+
+    // Triple the list to ensure seamless, infinite wrapping with no gaps
+    const duplicatedItems = [...combinedList, ...combinedList, ...combinedList];
 
     return (
       <div 
         className="w-full bg-zinc-950 border-b border-white/5 py-2 overflow-hidden relative z-[99999] text-[11px] font-mono border-t border-zinc-900 select-none"
-        dir="ltr" // Kept LTR for standardized cross-rate financial readings
+        dir="ltr"
       >
         <div className="animate-scroll-ticker gap-16">
-          {duplicatedItems.map((item, index) => (
-            <div key={`${item.code}-${index}`} className="flex items-center space-x-2 text-gray-400">
-              <span className="font-bold text-white tracking-wider">{item.code}/DZD</span>
-              <span className="text-zinc-600">|</span>
-              <span className="text-zinc-500">{isAr ? "البنك:" : "Bank:"}</span>
-              <span className="text-zinc-300 font-medium">{item.official}</span>
-              <span className="text-emerald-500 font-semibold">{isAr ? "السكوار:" : "Square:"}</span>
-              <span className="text-emerald-400 font-bold">{item.parallel}</span>
-              <span className="text-zinc-600">{isAr ? "الفارق:" : "Spread:"}</span>
-              <span className="text-red-400 font-medium">+{item.spread} (+{item.percent}%)</span>
-            </div>
-          ))}
+          {duplicatedItems.map((text, index) => {
+            const isSponsor = text.includes("[Sponsor:");
+            return (
+              <div 
+                key={index} 
+                className={`flex items-center space-x-2 whitespace-nowrap tracking-wide ${
+                  isSponsor ? "text-emerald-400 font-semibold" : "text-gray-400"
+                }`}
+              >
+                <span>{text}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     );

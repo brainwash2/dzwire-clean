@@ -1,6 +1,7 @@
 import React from "react";
 import { query } from "@/lib/db";
 import { ServerSparkline } from "@/components/ServerSparkline";
+import SponsorPlacement from "@/components/SponsorPlacement";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/types";
 
@@ -15,7 +16,14 @@ interface TickerRow {
   currency_code: string;
 }
 
-// Localized translations for the Financial Data Terminal
+interface PartnerPlacement {
+  partner_name: string;
+  logo_url: string;
+  tagline_fr: string;
+  tagline_ar: string;
+  tagline_en?: string;
+}
+
 const dashboardTranslations: Record<Locale, Record<string, string>> = {
   fr: {
     title: "Terminal Macroéconomique & Devises",
@@ -26,7 +34,6 @@ const dashboardTranslations: Record<Locale, Record<string, string>> = {
     thPremium: "Prime Parallèle",
     thTrend: "Tendance (7j)",
     commodities: "Matières Premières (Futures)",
-    spreadAlert: "Écart de change",
     updated: "Mise à jour en temps réel via flux sécurisés"
   },
   ar: {
@@ -38,7 +45,6 @@ const dashboardTranslations: Record<Locale, Record<string, string>> = {
     thPremium: "علاوة الصرف الموازية",
     thTrend: "مخطط التوجه (7 أيام)",
     commodities: "أسعار الطاقة والسلع العالمية",
-    spreadAlert: "فارق سعر الصرف",
     updated: "تحديث تلقائي عبر قنوات آمنة"
   },
   en: {
@@ -50,7 +56,6 @@ const dashboardTranslations: Record<Locale, Record<string, string>> = {
     thPremium: "Parallel Premium",
     thTrend: "7-Day Trend",
     commodities: "Global Commodity Futures",
-    spreadAlert: "FX Spread Anomaly",
     updated: "Updated in real-time via secure financial feeds"
   }
 };
@@ -60,21 +65,31 @@ export default async function DataDashboardPage({ params }: { params: Promise<{ 
   const isAr = locale === "ar";
   const tr = dashboardTranslations[locale as Locale] || dashboardTranslations.fr;
 
-  // 1. Fetch current exchange rates from the database
-  const { rows: tickers } = await query<TickerRow>(
-    `SELECT * FROM market_tickers 
-     WHERE currency_code IS NOT NULL 
-     ORDER BY currency_code ASC, type DESC`
-  );
+  // Fetch current exchange rates, commodities, and active page sponsorships in parallel from PostgreSQL
+  const [tickerResult, commodityResult, sponsorResult] = await Promise.all([
+    query<TickerRow>(
+      `SELECT * FROM market_tickers 
+       WHERE currency_code IS NOT NULL 
+       ORDER BY currency_code ASC, type DESC`
+    ),
+    query<Omit<TickerRow, "currency_code"> & { currency_code: null }>(
+      `SELECT * FROM market_tickers 
+       WHERE symbol IN ('BRENT', 'NAT_GAS') 
+       ORDER BY symbol ASC`
+    ),
+    query<PartnerPlacement>(
+      `SELECT partner_name, logo_url, tagline_fr, tagline_ar, tagline_en 
+       FROM partner_placements 
+       WHERE page_target = 'data' AND active = TRUE 
+       LIMIT 1`
+    )
+  ]);
 
-  // 2. Fetch Global commodities (Brent, Natural Gas)
-  const { rows: commodities } = await query<Omit<TickerRow, "currency_code"> & { currency_code: null }>(
-    `SELECT * FROM market_tickers 
-     WHERE symbol IN ('BRENT', 'NAT_GAS') 
-     ORDER BY symbol ASC`
-  );
+  const tickers = tickerResult.rows;
+  const commodities = commodityResult.rows;
+  const activeSponsor = sponsorResult.rows[0] || null;
 
-  // Group FX tickers by currency code to calculate the parallel premium
+  // Group FX tickers by currency code
   const groups: Record<string, { official?: TickerRow; parallel?: TickerRow }> = {};
   for (const row of tickers) {
     const code = row.currency_code;
@@ -102,7 +117,7 @@ export default async function DataDashboardPage({ params }: { params: Promise<{ 
 
   return (
     <div className="space-y-8 font-mono select-none" dir={isAr ? "rtl" : "ltr"}>
-      {/* Header block with institutional design */}
+      {/* Header block */}
       <div className="border-b border-white/10 pb-6 space-y-2">
         <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
           <span className="text-emerald-500">⚡</span> {tr.title}
@@ -134,7 +149,6 @@ export default async function DataDashboardPage({ params }: { params: Promise<{ 
                   +{c.spread} DA (+{c.percent}%)
                 </td>
                 <td className="p-4 flex justify-center items-center">
-                  {/* Invoke our high-performance, server-rendered SVG sparkline directly */}
                   <ServerSparkline symbol={c.parallelSymbol} strokeColor="#34d399" />
                 </td>
               </tr>
@@ -142,6 +156,18 @@ export default async function DataDashboardPage({ params }: { params: Promise<{ 
           </tbody>
         </table>
       </div>
+
+      {/* Render the database-backed B2B Sponsor Card only if active in PostgreSQL */}
+      {activeSponsor && (
+        <SponsorPlacement 
+          locale={locale as any}
+          partnerName={activeSponsor.partner_name}
+          partnerLogoUrl={activeSponsor.logo_url}
+          taglineFr={activeSponsor.tagline_fr}
+          taglineAr={activeSponsor.tagline_ar}
+          taglineEn={activeSponsor.tagline_en}
+        />
+      )}
 
       {/* Global Commodities Grid Section */}
       <div className="space-y-4">
