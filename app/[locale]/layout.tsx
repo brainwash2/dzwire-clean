@@ -5,6 +5,8 @@ import Footer from "@/components/Footer";
 import ConsentBanner from "@/components/ConsentBanner";
 import MarketTicker from "@/components/MarketTicker";
 import { ClerkProvider } from "@clerk/nextjs";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import "@/app/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,22 +23,30 @@ interface LayoutProps {
 export default async function LocaleLayout({ children, params }: LayoutProps) {
   const { locale } = await params;
   const dir = locale === "ar" ? "rtl" : "ltr";
+  
+  // Fetch dynamic localization messages for NextIntl Client context
+  const messages = await getMessages();
 
   return (
     <ClerkProvider>
-      <html lang={locale} dir={dir} className="dark">
-        <body className={`${inter.className} bg-black text-white antialiased min-h-screen flex flex-col`}>
-          {/* Render the infinite financial cross-rates ticker */}
-          <MarketTicker locale={locale as any} />
-          
-          <Header locale={locale as any} />
-          <main className="flex-grow max-w-7xl mx-auto w-full px-4 py-6">
-            {children}
-          </main>
-          <Footer locale={locale as any} />
-          <ConsentBanner locale={locale as any} />
-        </body>
-      </html>
+      <NextIntlClientProvider messages={messages}>
+        <html lang={locale} dir={dir} className="dark">
+          <body className={`${inter.className} bg-black text-white antialiased min-h-screen flex flex-col`}>
+            {/* Infinite scrolling cross-rates ticker */}
+            <MarketTicker locale={locale as any} />
+            
+            <Header locale={locale as any} />
+            
+            {/* Restored to original full-width container to prevent layout alignment breakages */}
+            <main className="min-h-screen bg-black text-white">
+              {children}
+            </main>
+            
+            <Footer locale={locale as any} />
+            <ConsentBanner locale={locale as any} />
+          </body>
+        </html>
+      </NextIntlClientProvider>
     </ClerkProvider>
   );
 }

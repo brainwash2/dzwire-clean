@@ -10,19 +10,8 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: #000000;
-}
-
-/* Reading Progress Bar Customization */
-#nprogress .bar {
-  background: #10b981 !important;
-  height: 3px !important;
-}
-
-#nprogress .spinner-icon {
-  border-top-color: #10b981 !important;
-  border-left-color: #10b981 !important;
+  color: rgb(var(--foreground-rgb)) !important;
+  background: #000000 !important;
 }
 
 /* Custom Scrollbar for Terminals */
