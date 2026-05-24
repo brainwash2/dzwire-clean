@@ -9,8 +9,8 @@ interface ScrapingResult {
 }
 
 /**
- * Dynamic HTML scraper to extract live parallel exchange rates from Square Port Said.
- * Enforces a strict three-digit range constraint ([123]\d{2}) to bypass inline CSS classes.
+ * Clean, dynamic HTML scraper to extract live parallel exchange rates from Square Port Said.
+ * Strips all HTML tags to prevent matching SVG paths or CSS classes, leaving only pure text.
  */
 async function scrapeParallelRates(): Promise<Record<string, number | null>> {
   const rates: Record<string, number | null> = {
@@ -34,14 +34,17 @@ async function scrapeParallelRates(): Promise<Record<string, number | null>> {
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     const html = await res.text();
 
-    // Enforce matching only 3-digit numbers starting with 1, 2, or 3 (e.g., 242.00 or 219.13)
-    const eurMatch = html.match(/Euro[\s\S]*?([123]\d{2}[,.]\d+)/i);
-    const usdMatch = html.match(/US Dollar[\s\S]*?([123]\d{2}[,.]\d+)/i);
-    const gbpMatch = html.match(/Pound Sterling[\s\S]*?([123]\d{2}[,.]\d+)/i);
-    const cadMatch = html.match(/Canadian Dollar[\s\S]*?([123]\d{2}[,.]\d+)/i);
-    const chfMatch = html.match(/Swiss Franc[\s\S]*?([123]\d{2}[,.]\d+)/i);
-    const sarMatch = html.match(/Saudi Riyal[\s\S]*?([123]\d{2}[,.]\d+)/i);
-    const aedMatch = html.match(/UAE Dirham[\s\S]*?([123]\d{2}[,.]\d+)/i);
+    // Strip all HTML tags to leave only clean, visible plain text
+    const cleanText = html.replace(/<[^>]*>/g, " ");
+
+    // Match 3-digit exchange rates safely from the cleaned plain text
+    const eurMatch = cleanText.match(/Euro[\s\S]*?([123]\d{2}[,.]\d+)/i);
+    const usdMatch = cleanText.match(/US Dollar[\s\S]*?([123]\d{2}[,.]\d+)/i);
+    const gbpMatch = cleanText.match(/Pound Sterling[\s\S]*?([123]\d{2}[,.]\d+)/i);
+    const cadMatch = cleanText.match(/Canadian Dollar[\s\S]*?([123]\d{2}[,.]\d+)/i);
+    const chfMatch = cleanText.match(/Swiss Franc[\s\S]*?([123]\d{2}[,.]\d+)/i);
+    const sarMatch = cleanText.match(/Saudi Riyal[\s\S]*?([123]\d{2}[,.]\d+)/i);
+    const aedMatch = cleanText.match(/UAE Dirham[\s\S]*?([123]\d{2}[,.]\d+)/i);
 
     if (eurMatch) rates.EUR = parseFloat(eurMatch[1].replace(",", "."));
     if (usdMatch) rates.USD = parseFloat(usdMatch[1].replace(",", "."));
@@ -51,7 +54,7 @@ async function scrapeParallelRates(): Promise<Record<string, number | null>> {
     if (sarMatch) rates.SAR = parseFloat(sarMatch[1].replace(",", "."));
     if (aedMatch) rates.AED = parseFloat(aedMatch[1].replace(",", "."));
 
-    console.log("[TICKERS API] Scraped live parallel rates successfully with range constraints.");
+    console.log("[TICKERS API] Scraped live parallel rates successfully from clean plain text.");
   } catch (e) {
     console.warn("[TICKERS API WARN] Parallel scraper failed. Applying dynamic fallbacks:", e);
   }
