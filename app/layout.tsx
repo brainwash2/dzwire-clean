@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./[locale]/globals.css"; // Points to the active, compiled stylesheet
+import "./[locale]/globals.css"; // Points directly to your compiled stylesheet
 
 export const metadata: Metadata = {
   title: "DzWire Terminal",

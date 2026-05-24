@@ -1,3 +1,4 @@
+
 # DzWire
 
 DzWire is a trilingual Algerian news hub built with Next.js 15, TypeScript, Tailwind v4, Framer Motion, Sanity, and PostgreSQL.
