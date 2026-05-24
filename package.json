@@ -10,8 +10,12 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.3.7",
+    "@deck.gl/core": "^9.3.2",
+    "@deck.gl/layers": "^9.3.2",
+    "@deck.gl/react": "^9.3.2",
     "@sanity/client": "^7.22.0",
     "@sanity/image-url": "^2.1.1",
+    "deck.gl": "^9.3.2",
     "framer-motion": "^11.18.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.511.0",
