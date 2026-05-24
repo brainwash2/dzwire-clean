@@ -24,29 +24,29 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
   const { locale } = await params;
   const dir = locale === "ar" ? "rtl" : "ltr";
   
-  // Fetch dynamic localization messages for NextIntl Client context
+  // Fetch localized dictionary messages for NextIntl Client context
   const messages = await getMessages();
 
   return (
-    <ClerkProvider>
-      <NextIntlClientProvider messages={messages}>
-        <html lang={locale} dir={dir} className="dark">
-          <body className={`${inter.className} bg-black text-white antialiased min-h-screen flex flex-col`}>
-            {/* Infinite scrolling cross-rates ticker */}
+    <html lang={locale} dir={dir} className="dark">
+      <body className={`${inter.className} bg-black text-white antialiased min-h-screen flex flex-col`}>
+        {/* Next.js strict standard: Keep all React Context Providers inside the body tag */}
+        <ClerkProvider>
+          <NextIntlClientProvider messages={messages}>
+            {/* Infinite financial cross-rates ticker */}
             <MarketTicker locale={locale as any} />
             
             <Header locale={locale as any} />
             
-            {/* Restored to original full-width container to prevent layout alignment breakages */}
             <main className="min-h-screen bg-black text-white">
               {children}
             </main>
             
             <Footer locale={locale as any} />
             <ConsentBanner locale={locale as any} />
-          </body>
-        </html>
-      </NextIntlClientProvider>
-    </ClerkProvider>
+          </NextIntlClientProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
